@@ -17,12 +17,10 @@ void listeningThread()
 {
 	int connFd = open_socket(SERVER_PORT);
 
-    char ack;
-    read (connFd, &ack, sizeof(ack));
+    char buffer[256];
+    read (connFd, buffer, 256);
 
-    std::cout << "Received: " << ack << std::endl;
-
-    //return true;
+    std::cout << "Received: " << buffer << std::endl;
 }
 
 void listeningCin()
@@ -33,6 +31,12 @@ void listeningCin()
 	getline(std::cin, input);
 	std::cout << "You entered: " << input << std::endl;
 
+	if (input.compare("exit") == 0)
+	{
+		std::cout << "Exiting normally " << std::endl;
+		exit(0);
+	}
+
 	std::string address = "localhost";
 
 	connect_to_server(address.c_str(), SERVER_PORT, &connectionToServer);
@@ -40,9 +44,11 @@ void listeningCin()
 	int ret;
     char ack;
     char init = 'i';
-    //Write init
-    ret = write(connectionToServer, &init, sizeof(char) );
 
+    char * cstr = new char [input.length()+1];
+  	std::strcpy (cstr, input.c_str());
+    //Write init
+    ret = write(connectionToServer, cstr, input.length()+1 );
 }
 
 int main (int argc, char* argv[])

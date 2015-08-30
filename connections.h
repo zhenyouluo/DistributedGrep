@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+/* Server operation */
 int open_socket(int port)
 {
 	socklen_t len; //store size of the address
@@ -58,6 +59,7 @@ int open_socket(int port)
     return connFd;
 }
 
+/*Client operation */
 void connect_to_server(const char* add, int port, int* connectionFd)
 {
     struct sockaddr_in svrAdd;
@@ -106,7 +108,5 @@ void connect_to_server(const char* add, int port, int* connectionFd)
     else{
         std::cout << "Client Connection Successful" << std::endl;
     }
-
-    //return true;
 }
 

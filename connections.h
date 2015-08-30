@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -8,7 +7,7 @@
 /* Server operation */
 int open_socket(int port)
 {
-	socklen_t len; //store size of the address
+    socklen_t len; //store size of the address
     struct sockaddr_in svrAdd, clntAdd;
     int listenFd;
     int connFd;

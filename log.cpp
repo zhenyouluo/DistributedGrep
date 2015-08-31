@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <thread>
+#include <vector>
 #include <stdlib.h>     // atoi
 #include <unistd.h>     // , sleep
 
@@ -11,15 +12,20 @@
 
 using namespace std;
 
+#define BUFFER_MAX 1024*1024*8
+#define NODES_NUMBER 3
+
 int SERVER_PORT;
 
-void listeningThread()
+std::vector<std::stringstream> logs(NODES_NUMBER);
+
+void listeningThread(int serverPort)
 {
     int ret;
-    int connFd = open_socket(SERVER_PORT);
+    int connFd = open_socket(serverPort);
 
-    char buffer[256];
-    ret = read (connFd, buffer, 256);
+    char* buffer = new char[BUFFER_MAX];
+    ret = read (connFd, buffer, BUFFER_MAX);
 
     std::cout << "Received: " << buffer << std::endl;
 
@@ -30,6 +36,33 @@ void listeningThread()
     //std::string replay = "This is the reply from the server with the query";
     //std::strcpy(buffer, replay.c_str());
     ret = write(connFd, buffer, strlen(buffer));
+}
+
+void connection_thread(std::string input, int serverPort, int threadId)
+{
+    int connectionToServer;
+
+    std::string address = "localhost";
+
+    connect_to_server(address.c_str(), serverPort, &connectionToServer);
+
+    int ret;
+    char ack;
+    char init = 'i';
+
+    char * cstr = new char [input.length()+1];
+    std::strcpy (cstr, input.c_str());
+    //Write init
+    ret = write(connectionToServer, cstr, input.length()+1 );
+
+    char* buffer = new char[BUFFER_MAX];
+    ret = read (connectionToServer, buffer, BUFFER_MAX);
+
+    std::string tmp(buffer);
+
+    logs.at(threadId) << tmp;
+
+    //std::cout << "Reply: " << buffer << std::endl;
 }
 
 void listeningCin()
@@ -46,23 +79,21 @@ void listeningCin()
         exit(0);
     }
 
-    std::string address = "localhost";
+    std::vector <std::thread> threads;
 
-    connect_to_server(address.c_str(), SERVER_PORT, &connectionToServer);
+    for (int i = 0; i < NODES_NUMBER; ++i)
+    {
+        threads.push_back(std::thread(connection_thread,input, SERVER_PORT+i, i));
+    }
 
-    int ret;
-    char ack;
-    char init = 'i';
+    for (auto& th : threads) th.join();
 
-    char * cstr = new char [input.length()+1];
-    std::strcpy (cstr, input.c_str());
-    //Write init
-    ret = write(connectionToServer, cstr, input.length()+1 );
+    for (int i = 0; i < logs.size(); ++i)
+    {
+        std::cout << "Machine " << i << std::endl;
+        std::cout << logs.at(i).str() <<std::endl;
+    }
 
-    char buffer[256];
-    ret = read (connectionToServer, buffer, 256);
-
-    std::cout << "Replay: " << buffer << std::endl;
 }
 
 int main (int argc, char* argv[])
@@ -73,7 +104,12 @@ int main (int argc, char* argv[])
     SERVER_PORT = atoi(argv[1]);
 
     std::cout << "Distributed Logging init." << std::endl;
-    std::thread serverListening(listeningThread);
+    std::vector<std::thread> threads;
+    for (int i = 0; i < NODES_NUMBER; ++i)
+    {
+        threads.push_back(std::thread(listeningThread, SERVER_PORT+i));
+    }
+    
     usleep(1000);
 
 
@@ -83,7 +119,7 @@ int main (int argc, char* argv[])
 
     cinListening.join();
 
-    serverListening.join();
+    for (auto& th : threads) th.join();
 
 
     return 0;

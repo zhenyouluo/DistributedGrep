@@ -5,7 +5,7 @@
 #include <thread>
 #include <vector>
 #include <stdlib.h>     // atoi
-#include <unistd.h>     // , sleep
+#include <unistd.h>     // sleep
 
 #include "connections.h"
 #include "grep.h"
@@ -27,7 +27,7 @@ void listeningThread(int serverPort)
     char* buffer = new char[BUFFER_MAX];
     ret = read (connFd, buffer, BUFFER_MAX);
 
-    std::cout << "Received: " << buffer << std::endl;
+    //std::cout << "Received: " << buffer << std::endl;
 
     std::string grep(buffer);
 
@@ -104,23 +104,25 @@ int main (int argc, char* argv[])
     SERVER_PORT = atoi(argv[1]);
 
     std::cout << "Distributed Logging init." << std::endl;
-    std::vector<std::thread> threads;
-    for (int i = 0; i < NODES_NUMBER; ++i)
+
+    while(true)
     {
-        threads.push_back(std::thread(listeningThread, SERVER_PORT+i));
-    }
-    
-    usleep(1000);
+        SERVER_PORT += 177;
+        std::vector<std::thread> threads;
+        for (int i = 0; i < NODES_NUMBER; ++i)
+        {
+            threads.push_back(std::thread(listeningThread, SERVER_PORT+i));
+        }
+        
+        usleep(1000);
 
+        std::cout << "Type 'grep' if you want to see logs: ";
+        std::thread cinListening(listeningCin);
 
-    std::cout << "Type 'grep' if you want to see logs: ";
-    std::thread cinListening(listeningCin);
+        cinListening.join();
 
-
-    cinListening.join();
-
-    for (auto& th : threads) th.join();
-
+        for (auto& th : threads) th.join();
+    }  
 
     return 0;
 }

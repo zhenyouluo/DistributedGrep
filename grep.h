@@ -1,30 +1,18 @@
+#ifndef GREP_H
+#define GREP_H
+
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include <string>
+
 #include <iomanip>
+#include <cstdlib>
 
-int dummygrep(std::string filename, std::string grep, char* buffer)
-{
-	std::stringstream ss;
+using namespace std;
 
-	for (int i = 0; i < 20; ++i)
-	{
-		ss << "Log Message " << i << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;
-	}
+int grep_system( string output, string cmd );
 
-	const std::string tmp = ss.str();
-	const char* cstr = tmp.c_str();
+int dummygrep(std::string filename, std::string grep, char* buffer);
 
-	std::strcpy(buffer, cstr);
 
-	return strlen(cstr);
-}
+#endif

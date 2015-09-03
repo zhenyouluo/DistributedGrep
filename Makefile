@@ -2,7 +2,7 @@
 #C compiler
 CC = g++
 
-SRC = log.cpp
+SRC = log.cpp grep.cpp
 
 CC_FLAGS = -std=c++11
 

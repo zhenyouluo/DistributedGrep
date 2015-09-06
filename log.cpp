@@ -20,6 +20,7 @@ using namespace std;
 int SERVER_PORT;
 
 std::vector<std::stringstream> logs(NODES_NUMBER);
+std::vector<std::string> address;
 
 void listeningThread(int serverPort)
 {
@@ -40,11 +41,9 @@ void listeningThread(int serverPort)
     ret = write(connFd, buffer, strlen(buffer));
 }
 
-void connection_thread(std::string input, int serverPort, int threadId)
+void connection_thread(std::string input, std::string address, int serverPort, int threadId)
 {
     int connectionToServer;
-
-    std::string address = "localhost";
 
     connect_to_server(address.c_str(), serverPort, &connectionToServer);
 
@@ -83,9 +82,9 @@ void listeningCin()
 
     std::vector <std::thread> threads;
 
-    for (int i = 0; i < NODES_NUMBER; ++i)
+    for (int i = 0; i < NODES_NUMBER-1; ++i)
     {
-        threads.push_back(std::thread(connection_thread,input, SERVER_PORT+i, i));
+        threads.push_back(std::thread(connection_thread,input, address.at(i), SERVER_PORT, i));
     }
 
     for (auto& th : threads) th.join();
@@ -98,6 +97,23 @@ void listeningCin()
 
 }
 
+void getAdress(std::string filename, int machineId)
+{
+    stringstream file;
+    file << filename << machineId << ".add";
+
+    ifstream addFile(file.str());
+
+    for (int i = 0; i < NODES_NUMBER -1; ++i)
+    {
+        std::string str;
+        getline(addFile, str);
+        address.push_back(str);
+        std::cout << "Address " << i << ": " << str << std::endl;
+    }
+}
+
+
 int main (int argc, char* argv[])
 {
     char a;
@@ -107,24 +123,15 @@ int main (int argc, char* argv[])
 
     std::cout << "Distributed Logging init." << std::endl;
 
-    while(true)
-    {
-        SERVER_PORT += 177;
-        std::vector<std::thread> threads;
-        for (int i = 0; i < NODES_NUMBER; ++i)
-        {
-            threads.push_back(std::thread(listeningThread, SERVER_PORT+i));
-        }
-        
-        usleep(1000);
+    std::thread listeningServer(listeningThread, SERVER_PORT);
+    
+    usleep(1000);
 
-        std::cout << "Type 'grep' if you want to see logs: ";
-        std::thread cinListening(listeningCin);
+    std::cout << "Type 'grep' if you want to see logs: ";
+    std::thread cinListening(listeningCin);
 
-        cinListening.join();
-
-        for (auto& th : threads) th.join();
-    }  
+    cinListening.join();
+    listeningServer.join();
 
     return 0;
 }

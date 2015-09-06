@@ -96,7 +96,7 @@ void connect_to_server(const char* add, int port, int* connectionFd)
     memset((char *) &svrAdd,0, sizeof(svrAdd));
     svrAdd.sin_family = AF_INET;
     
-    memcpy((char *) server -> h_addr, (char *) &svrAdd.sin_addr.s_addr, server -> h_length);
+    memcpy((char *) &svrAdd.sin_addr.s_addr,(char *) server -> h_addr, server -> h_length);
     
     svrAdd.sin_port = htons(port);
     
@@ -104,8 +104,8 @@ void connect_to_server(const char* add, int port, int* connectionFd)
     
     if (checker < 0)
     {
-        std::cout << "Cannot connect!" << std::endl;
-        exit(1);
+        std::cout << "Cannot connect to: " << add << std::endl;
+        //exit(1);
     }
     else{
         std::cout << "Client Connection Successful" << std::endl;

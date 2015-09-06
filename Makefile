@@ -4,7 +4,7 @@ CC = g++
 
 SRC = log.cpp grep.cpp
 
-CC_FLAGS = -std=c++11
+CC_FLAGS = -pthread -std=c++11
 
 EXE = logger
 

@@ -16,28 +16,59 @@ using namespace std;
 
 std::vector<std::string> address;
 
-void generateLog(int machine)
+void generateLog(int machine, int test)
 {
     stringstream filename;
     filename << "machine." << machine << ".log";
 
-    ifstream (filename.str());
+    ofstream log(filename.str());
 
-    std::stringstream log;
-
-    for (int i = 0; i < 20; ++i)
+    if (test == 1)
     {
-        log << "Log Message A" << i << std::endl;
+        log << "Log Message A " << machine << std::endl;
+        for (int i = 0; i < 10; ++i)
+        {
+            log << "Log Message " << i << std::endl;
+        }
+    }
+    if (test == 2)
+    {
+        log << "Log Message A " << machine << std::endl;
         log << "Log Message 1" << std::endl;
         log << "Log Message 2" << std::endl;
-        log << "Log Message 3" << std::endl;
+        log << "Log different 3: " << machine << std::endl;
         log << "Log Message 4" << std::endl;
         log << "Log Message 5" << std::endl;
-        log << "Log Message 6" << std::endl;
-        log << "Log Message 7" << std::endl;
-        log << "Log Message 8" << std::endl;
-        log << "Log Message 9" << std::endl;
     }
+
+}
+
+std::string generateResults(int test)
+{
+    std::stringstream output;
+
+    if (test == 1)
+    {
+        for (int i = 0; i < NODES_NUMBER; ++i)
+        {
+            output << "Log Message A" << i << std::endl;
+            for (int j = 0; j < 10; ++j)
+            {
+                output << "Log Message " << j << std::endl;
+            }
+        }
+
+    }
+    if (test == 2)
+    {
+        for (int i = 0; i < NODES_NUMBER; ++i)
+        {
+            output << "Log Message A" << i << std::endl;
+            output << "Log different 3: " << i << std::endl;
+        }
+    }
+
+    return output.str();
 }
 
 void listeningThread(int serverPort)
@@ -112,6 +143,7 @@ void getAdress(std::string filename, int machineId)
     }
 }
 
+
 int main (int argc, char* argv[])
 {
     char a;
@@ -119,18 +151,19 @@ int main (int argc, char* argv[])
 
     int serverPort = atoi(argv[1]);
     int machineId = atoi(argv[2]);
+    int test = atoi(argv[3]);
     int task;
 
-    if (argc > 3)
+    if (argc > 4)
     {
-        task = atoi(argv[3]); // client or server
+        task = atoi(argv[4]); // client or server
     }
     else
     {
         task = 0;
     }
 
-    generateLog(machineId);
+    generateLog(machineId, test);
 
     if (task == false) // task == 0 -> server
     {
@@ -141,7 +174,8 @@ int main (int argc, char* argv[])
     {
         getAdress("Address", machineId);
         listening(serverPort);
-        std::cout << "Exito!" << std::endl;
+        std::cout << "DONE!" << std::endl;
+        generateResults(test);
         // Call app
         //check result
     }

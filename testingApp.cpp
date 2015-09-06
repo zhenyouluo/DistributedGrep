@@ -119,9 +119,16 @@ int main (int argc, char* argv[])
 
     int serverPort = atoi(argv[1]);
     int machineId = atoi(argv[2]);
-    int task = atoi(argv[3]); // client or server
+    int task;
 
-    getAdress("Address", machineId);
+    if (argc > 3)
+    {
+        task = atoi(argv[3]); // client or server
+    }
+    else
+    {
+        task = 0;
+    }
 
     generateLog(machineId);
 
@@ -132,8 +139,11 @@ int main (int argc, char* argv[])
     }
     else if (task == true) // task != o -> client
     {
+        getAdress("Address", machineId);
         listening(serverPort);
         std::cout << "Exito!" << std::endl;
+        // Call app
+        //check result
     }
 
     return 0;

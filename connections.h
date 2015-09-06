@@ -43,7 +43,7 @@ int open_socket(int port)
 
     //std::cout << "Listening in background... " << std::endl;
 
-    printf("Listening in background...\n");
+    printf("Listening at port %d...\n", port);
 
     //this is where client connects. svr will hang in this mode until client conn
     connFd = accept(listenFd, (struct sockaddr *)&clntAdd, &len);

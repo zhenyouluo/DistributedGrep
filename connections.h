@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -21,7 +22,7 @@ int open_socket(int port)
         exit(1);
     }
     
-    bzero((char*) &svrAdd, sizeof(svrAdd));
+   memset((char*) &svrAdd,0, sizeof(svrAdd));
     
     svrAdd.sin_family = AF_INET;
     svrAdd.sin_addr.s_addr = INADDR_ANY;
@@ -92,10 +93,10 @@ void connect_to_server(const char* add, int port, int* connectionFd)
         exit(1);
     }
     
-    bzero((char *) &svrAdd, sizeof(svrAdd));
+    memset((char *) &svrAdd,0, sizeof(svrAdd));
     svrAdd.sin_family = AF_INET;
     
-    bcopy((char *) server -> h_addr, (char *) &svrAdd.sin_addr.s_addr, server -> h_length);
+    memcpy((char *) server -> h_addr, (char *) &svrAdd.sin_addr.s_addr, server -> h_length);
     
     svrAdd.sin_port = htons(port);
     

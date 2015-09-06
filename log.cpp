@@ -66,37 +66,6 @@ void connection_thread(std::string input, std::string address, int serverPort, i
     //std::cout << "Reply: " << buffer << std::endl;
 }
 
-void listeningCin()
-{
-    std::string input;
-    int connectionToServer;
-
-    getline(std::cin, input);
-    std::cout << "You entered: " << input << std::endl;
-
-    if (input.compare("exit") == 0)
-    {
-        std::cout << "Exiting normally " << std::endl;
-        exit(0);
-    }
-
-    std::vector <std::thread> threads;
-
-    for (int i = 0; i < NODES_NUMBER-1; ++i)
-    {
-        threads.push_back(std::thread(connection_thread,input, address.at(i), SERVER_PORT, i));
-    }
-
-    for (auto& th : threads) th.join();
-
-    for (int i = 0; i < logs.size(); ++i)
-    {
-        std::cout << "Machine " << i << std::endl;
-        std::cout << logs.at(i).str() <<std::endl;
-    }
-
-}
-
 void getAdress(std::string filename, int machineId)
 {
     stringstream file;
@@ -111,6 +80,46 @@ void getAdress(std::string filename, int machineId)
         address.push_back(str);
         std::cout << "Address " << i << ": " << str << std::endl;
     }
+}
+
+void listeningCin()
+{
+    std::string input;
+    int connectionToServer;
+
+    getline(std::cin, input);
+    std::cout << "You entered: " << input << std::endl;
+
+    if (input.compare("exit") == 0)
+    {
+        std::cout << "Exiting normally " << std::endl;
+        exit(0);
+    }
+
+    getAdress("Address", 1);
+
+    std::vector <std::thread> threads;
+
+    for (int i = 0; i < NODES_NUMBER-1; ++i)
+    {
+        threads.push_back(std::thread(connection_thread,input, address.at(i), SERVER_PORT, i+1));
+    }
+
+    char* buffer = new char[BUFFER_MAX];
+
+    unsigned int size = dummygrep("test.txt", input, buffer);
+    std::string aux(buffer);
+
+    logs.at(0) << aux;
+
+    for (auto& th : threads) th.join();
+
+    for (int i = 0; i < logs.size(); ++i)
+    {
+        std::cout << "Machine " << i << std::endl;
+        std::cout << logs.at(i).str() <<std::endl;
+    }
+    exit(0);
 }
 
 

@@ -18,7 +18,7 @@ int dummygrep(std::string filename, std::string grep, char* buffer)
 {
 	std::stringstream ss;
 
-	for (int i = 0; i < 20; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		ss << "Log Message " << i << std::endl;
 		ss << "Log Message kfjdsañlkfjadsklñhj3khnglñjkajgkhasljkgdsjkhewjuabhdshfgadsñjklfgadfhadsgfhjkads" << std::endl;

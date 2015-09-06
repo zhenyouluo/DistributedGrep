@@ -53,7 +53,7 @@ void connection_thread(std::string input, int serverPort, int threadId)
     char init = 'i';
 
     char * cstr = new char [input.length()+1];
-    std::strcpy (cstr, input.c_str());
+    strcpy (cstr, input.c_str());
     //Write init
     ret = write(connectionToServer, cstr, input.length()+1 );
 

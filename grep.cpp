@@ -35,7 +35,7 @@ int dummygrep(std::string filename, std::string grep, char* buffer)
 	const std::string tmp = ss.str();
 	const char* cstr = tmp.c_str();
 
-	std::strcpy(buffer, cstr);
+       strcpy(buffer, cstr);
 
 	return strlen(cstr);
 }

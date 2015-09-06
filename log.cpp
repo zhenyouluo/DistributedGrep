@@ -52,7 +52,7 @@ void connection_thread(std::string input, std::string address, int serverPort, i
     char init = 'i';
 
     char * cstr = new char [input.length()+1];
-    std::strcpy (cstr, input.c_str());
+    strcpy (cstr, input.c_str());
     //Write init
     ret = write(connectionToServer, cstr, input.length()+1 );
 

@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdlib.h>     // atoi
 #include <unistd.h>     // sleep
+#include <stdio.h>
+#include <string.h>
 
 #include "connections.h"
 #include "grep.h"

@@ -1,5 +1,7 @@
-#include "grep.h"
 #include <sstream>
+#include <stdio.h>
+#include <string.h>
+#include "grep.h"
 
 int grep_system( string output, string cmd ){
 	

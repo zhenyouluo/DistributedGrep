@@ -124,7 +124,6 @@ void listening(int serverPort)
     for (auto& th : threads) th.join();
 
     std::cout << "All systems responded DONE" << std::endl;
-
 }
 
 void getAdress(std::string filename, int machineId)

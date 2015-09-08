@@ -22,7 +22,7 @@ int open_socket(int port)
         exit(1);
     }
     
-   memset((char*) &svrAdd,0, sizeof(svrAdd));
+    memset((char*) &svrAdd,0, sizeof(svrAdd));
     
     svrAdd.sin_family = AF_INET;
     svrAdd.sin_addr.s_addr = INADDR_ANY;
@@ -34,6 +34,7 @@ int open_socket(int port)
         std::cout << "open_socket: Cannot bind" << std::endl;
         exit(1);
     }
+
     
     listen(listenFd, 5);
     

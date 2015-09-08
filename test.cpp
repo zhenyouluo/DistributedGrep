@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include "grep.h"
 //#include "grep_diy.h"
-
+	
 using namespace std;
-
+	
 //default command
 string out_file = "output.txt";
 string grep_cmd = "grep apple *.log";
@@ -22,10 +22,10 @@ int main( int argc, char **argv){
 			grep_cmd += argv[i];
 		}
 	}
-
-	grep_system( out_file, grep_cmd );
 	
+	grep_system( out_file, grep_cmd );
+		
 	//grep_diy( out_file, grep_cmd );
-
+	
 	return 0;
 }

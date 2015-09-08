@@ -1,16 +1,20 @@
 #include <sstream>
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include "grep.h"
 
-int grep_system( string output, string cmd ){
+int grep_system( string output, string cmd, bool *grepFinished ){
 	
 	//delete the output file
 	string remove = "rm ";
 	system( (remove + output + " 2>&-").c_str() );	/*hide error*/
 
 	system( (cmd + ">>" + output).c_str() );
-
+	usleep(2500*1000);
+	
+	*grepFinished = true;
+	
 	return 0;
 }
 

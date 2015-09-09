@@ -18,7 +18,7 @@ int grep_system( string output, string cmd, bool *grepFinished ){
 	return 0;
 }
 
-int dummygrep(std::string filename, std::string grep, char* buffer)
+int dummygrep(char* buffer)
 {
 	std::stringstream ss;
 
@@ -39,7 +39,7 @@ int dummygrep(std::string filename, std::string grep, char* buffer)
 	const std::string tmp = ss.str();
 	const char* cstr = tmp.c_str();
 
-       strcpy(buffer, cstr);
+    strcpy(buffer, cstr);
 
 	return strlen(cstr);
 }

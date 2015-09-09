@@ -16,10 +16,10 @@ using namespace std;
 
 std::vector<std::string> address;
 
-void generateLog(int machine, int test)
+void generateLog(int test)
 {
     stringstream filename;
-    filename << "machine." << machine << ".log";
+    filename << "testLog.log";
 
     ofstream log(filename.str());
 
@@ -39,6 +39,13 @@ void generateLog(int machine, int test)
         log << "Log different 3: " << machine << std::endl;
         log << "Log Message 4" << std::endl;
         log << "Log Message 5" << std::endl;
+    }
+    if (test == 3)
+    {
+        for (unsigned int i = 0; i < 100000000; ++i)
+        {
+            log << "Log this is a very long message that must be retrieved using a lot of effort " << i << std::endl;
+        }
     }
 
 }
@@ -126,12 +133,9 @@ void listening(int serverPort)
     std::cout << "All systems responded DONE" << std::endl;
 }
 
-void getAdress(std::string filename, int machineId)
+void getAdress(std::string filename)
 {
-    stringstream file;
-    file << filename << machineId << ".add";
-
-    ifstream addFile(file.str());
+    ifstream addFile(filename);
 
     for (int i = 0; i < NODES_NUMBER -1; ++i)
     {
@@ -162,7 +166,7 @@ int main (int argc, char* argv[])
         task = 0;
     }
 
-    generateLog(machineId, test);
+    generateLog(test);
 
     if (task == false) // task == 0 -> server
     {
@@ -171,11 +175,12 @@ int main (int argc, char* argv[])
     }
     else if (task == true) // task != o -> client
     {
-        getAdress("Address", machineId);
+        getAdress("Address.add");
         listening(serverPort);
         std::cout << "DONE!" << std::endl;
         generateResults(test);
         // Call app
+        // system("./logger 45454 grep Log testLog.log")
         //check result
     }
 

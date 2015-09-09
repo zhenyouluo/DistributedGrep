@@ -56,7 +56,7 @@ int open_socket(int port)
     }
     else
     {
-        std::cout << "Server Connection successful " << std::endl;
+        //std::cout << "Server Connection successful " << std::endl;
     }
 
     return connFd;
@@ -83,7 +83,7 @@ void connect_to_server(const char* add, int port, int* connectionFd)
         exit(1);
     }
     else{
-        std::cout << "Socket opened" << std::endl;
+        //std::cout << "Socket opened" << std::endl;
     }
     
     server = gethostbyname(add);
@@ -109,7 +109,7 @@ void connect_to_server(const char* add, int port, int* connectionFd)
         //exit(1);
     }
     else{
-        std::cout << "Client Connection Successful" << std::endl;
+        //std::cout << "Client Connection Successful" << std::endl;
     }
 }
 

@@ -21,7 +21,7 @@
 using namespace std;
 
 #define BUFFER_MAX (1024*1024*8)
-#define NODES_NUMBER (2)
+#define NODES_NUMBER (3)
 
 //  in ms
 #define SLEEP_TIME (50)
@@ -215,7 +215,7 @@ void listeningThread(int serverPort)
     sysCmd += filename;
     system(sysCmd.c_str());
 
-    printf("Server: mission finished\n");
+    //printf("Server: The mission was a complete success!\n");
 
     return;
 }
@@ -279,17 +279,14 @@ void connection_thread(std::string input, std::string address, int serverPort, i
     
     delete [] result;
 
-    printf("Client %d: mission finished\n", threadId);
+    //printf("Client %d: mission finished\n", threadId);
 
     return;
 }
 
-void getAdress(std::string filename, int machineId)
+void getAdress(std::string filename)
 {
-    stringstream file;
-    file << filename << machineId << ".add";
-
-    ifstream addFile(file.str());
+    ifstream addFile(filename);
 
     for (int i = 0; i < NODES_NUMBER -1; ++i)
     {
@@ -314,9 +311,11 @@ void listeningCin()
         exit(0);
     }
 
-    getAdress("Address", 1);
+    getAdress("Address.add");
 
     std::vector <std::thread> threads;
+
+    printf("Retriving information from remote machines... \n");
 
     for (int i = 0; i < NODES_NUMBER-1; ++i)
     {
@@ -324,6 +323,8 @@ void listeningCin()
     }
 
     for (auto& th : threads) th.join();
+
+    printf("Client: mission completed!\n");
 
     return;
 }
@@ -339,6 +340,7 @@ int main (int argc, char* argv[])
     std::cout << "Distributed Logging init." << std::endl;
 
     std::thread listeningServer(listeningThread, SERVER_PORT);
+    usleep(500);
 
     std::cout << "Type 'grep' if you want to see logs: ";
     std::thread cinListening( listeningCin );

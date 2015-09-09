@@ -1,0 +1,2 @@
+rsync -ru --exclude=".*" /Users/luisremis/425/MP/MP1/MP1-Logger remis2@fa15-cs425-g26-02.cs.illinois.edu:/home/remis2
+rsync -ru --exclude=".*" /Users/luisremis/425/MP/MP1/MP1-Logger remis2@fa15-cs425-g26-03.cs.illinois.edu:/home/remis2

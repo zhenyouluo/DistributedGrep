@@ -12,7 +12,7 @@ using namespace std;
 
 int grep_system( string output, string cmd, bool *grepFinished);
 
-int dummygrep(std::string filename, std::string grep, char* buffer);
+int dummygrep(char* buffer);
 
 
 #endif

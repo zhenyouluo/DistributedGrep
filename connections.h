@@ -15,6 +15,9 @@ int open_socket(int port)
     
     //create socket
     listenFd = socket(AF_INET, SOCK_STREAM, 0);
+    int iSetOption = 1;
+    setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
+        sizeof(iSetOption));
     
     if(listenFd < 0)
     {
@@ -63,7 +66,7 @@ int open_socket(int port)
 }
 
 /*Client operation */
-void connect_to_server(const char* add, int port, int* connectionFd)
+int connect_to_server(const char* add, int port, int* connectionFd)
 {
     struct sockaddr_in svrAdd;
     struct hostent *server;
@@ -76,6 +79,9 @@ void connect_to_server(const char* add, int port, int* connectionFd)
     
     //create client skt
     *connectionFd = socket(AF_INET, SOCK_STREAM, 0);
+        int iSetOption = 1;
+    setsockopt(*connectionFd, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
+        sizeof(iSetOption));
     
     if(*connectionFd < 0)
     {
@@ -105,10 +111,12 @@ void connect_to_server(const char* add, int port, int* connectionFd)
     
     if (checker < 0)
     {
-        std::cout << "Cannot connect to: " << add << std::endl;
+        //printf("Cannot connect to: %s \n",add);
+        return -1;
         //exit(1);
     }
     else{
+        return 0;
         //std::cout << "Client Connection Successful" << std::endl;
     }
 }

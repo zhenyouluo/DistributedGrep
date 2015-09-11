@@ -21,7 +21,7 @@
 using namespace std;
 
 #define BUFFER_MAX (1024*1024*8)
-#define NODES_NUMBER (3)
+#define NODES_NUMBER (8)
 
 //  in ms
 #define SLEEP_TIME (50)
@@ -42,7 +42,7 @@ public:
 };
 
 void printLog(char * result, int threadId){
-    printf("\nLog from machine %d:\n%s\n", threadId, result);
+    printf("\n%s\n", result);
     return;
 }
 
@@ -153,69 +153,73 @@ int splitRead( int connFd, char * data, int size ){
 void listeningThread(int serverPort)
 {   
     //set connection
-    int ret;
-    int connFd = open_socket(serverPort);
+    while(true)
+    {
 
-    //recv command from client
-    char* buffer = new char[BUFFER_MAX];
-    ret = read (connFd, buffer, BUFFER_MAX);
-    
-    //get temp output filename
-    string filename;
-    stringstream ss;
-    ss<<rand()%100000;
-    ss>>filename;
-    filename += ".tmp";
-    //cout<<"Server: filename is "<<filename<<endl;
+        int ret;
+        int connFd = open_socket(serverPort);
 
-    //grepping
-    bool grepFinished = false;
-    //std::thread systemCmd(grep_system, filename, "grep apple *.log", &grepFinished);
-    std::thread systemCmd(grep_system, filename, buffer, &grepFinished);
+        //recv command from client
+        char* buffer = new char[BUFFER_MAX];
+        ret = read (connFd, buffer, BUFFER_MAX);
+        
+        //get temp output filename
+        string filename;
+        stringstream ss;
+        ss<<rand()%100000;
+        ss>>filename;
+        filename += ".tmp";
+        //cout<<"Server: filename is "<<filename<<endl;
 
-    //sync status with client
-    while( !grepFinished ){
-        //cout<<"Server: grepping"<<endl;
-        char running[3] = {1, 10, 1};
-        ret = robustWrite(connFd, running, 3 );
-        usleep( SLEEP_TIME * 1000 );
+        //grepping
+        bool grepFinished = false;
+        //std::thread systemCmd(grep_system, filename, "grep apple *.log", &grepFinished);
+        std::thread systemCmd(grep_system, filename, buffer, &grepFinished);
+
+        //sync status with client
+        while( !grepFinished ){
+            //cout<<"Server: grepping"<<endl;
+            char running[3] = {1, 10, 1};
+            ret = robustWrite(connFd, running, 3 );
+            usleep( SLEEP_TIME * 1000 );
+        }
+
+        //finish grepping
+        systemCmd.join();
+
+        //check file exist
+        struct stat st;
+        if(stat( filename.c_str(), &st) != 0){
+            cout<<"Server: cannot find file "<<filename<<endl;
+            exit(0);
+        }
+
+        int fd = open(filename.c_str(), O_RDONLY);
+        void * filep = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        close( fd );
+
+        buffer[0] = 0;
+        buffer[1] = 8;
+        buffer[2] = 8;
+        ((int*)buffer)[1] = st.st_size;
+        //cout<<"Server: filesize: "<<st.st_size<<endl;
+        robustWrite(connFd, buffer, 8);
+
+        robustRead(connFd, buffer, 8);
+
+        splitWrite(connFd, (char*)filep, st.st_size);
+
+        munmap( filep,  st.st_size );
+        close(connFd);
+        delete [] buffer;
+
+        //cleanning tmp file on server
+        string sysCmd = "rm ";
+        sysCmd += filename;
+        system(sysCmd.c_str());
+
+        //printf("Server: The mission was a complete success!\n");
     }
-
-    //finish grepping
-    systemCmd.join();
-
-    //check file exist
-    struct stat st;
-    if(stat( filename.c_str(), &st) != 0){
-        cout<<"Server: cannot find file "<<filename<<endl;
-        exit(0);
-    }
-
-    int fd = open(filename.c_str(), O_RDONLY);
-    void * filep = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-    close( fd );
-
-    buffer[0] = 0;
-    buffer[1] = 8;
-    buffer[2] = 8;
-    ((int*)buffer)[1] = st.st_size;
-    //cout<<"Server: filesize: "<<st.st_size<<endl;
-    robustWrite(connFd, buffer, 8);
-
-    robustRead(connFd, buffer, 8);
-
-    splitWrite(connFd, (char*)filep, st.st_size);
-
-    munmap( filep,  st.st_size );
-    close(connFd);
-    delete [] buffer;
-
-    //cleanning tmp file on server
-    string sysCmd = "rm ";
-    sysCmd += filename;
-    system(sysCmd.c_str());
-
-    //printf("Server: The mission was a complete success!\n");
 
     return;
 }
@@ -225,10 +229,13 @@ void connection_thread(std::string input, std::string address, int serverPort, i
 {
     int connectionToServer;
 
-    connect_to_server(address.c_str(), serverPort, &connectionToServer);
+    int ret = connect_to_server(address.c_str(), serverPort, &connectionToServer);
+    if (ret != 0)
+    {
+        printf("Client: cannot connect to server: %s \n", address.c_str());
+        return;
+    }
     char* buffer = new char[BUFFER_MAX];
-
-    int ret;
 
     char * cstr = new char [input.length()+1];
     strcpy (cstr, input.c_str());
@@ -243,7 +250,7 @@ void connection_thread(std::string input, std::string address, int serverPort, i
     while(true){
         int ret = poll( &isReady, 1, MAX_LATENCY + SLEEP_TIME);
         if(ret==0) {
-            cout<<"Clinet: the server is dead"<<endl;
+            printf("Client: the server %s is dead \n",address.c_str() );
             //exit(0);
             return;
             //kent
@@ -274,6 +281,7 @@ void connection_thread(std::string input, std::string address, int serverPort, i
     delete [] buffer;
 
     printLogLock.lock();
+    printf("Logs from Machine %s: \n", address.c_str());
     printLog( result, threadId );
     printLogLock.unlock();
     
@@ -299,32 +307,35 @@ void getAdress(std::string filename)
 
 void listeningCin()
 {
-    std::string input;
-    int connectionToServer;
-
-    getline(std::cin, input);
-    std::cout << "You entered: " << input << std::endl;
-
-    if (input.compare("exit") == 0)
+    while (true)
     {
-        std::cout << "Exiting normally " << std::endl;
-        exit(0);
+        std::string input;
+        int connectionToServer;
+        std::cout << "Type 'grep' if you want to see logs: ";
+        getline(std::cin, input);
+        std::cout << "You entered: " << input << std::endl;
+
+        if (input.compare("exit") == 0)
+        {
+            std::cout << "Exiting normally " << std::endl;
+            exit(0);
+        }
+
+        getAdress("Address.add");
+
+        std::vector <std::thread> threads;
+
+        printf("Retriving information from remote machines... \n");
+
+        for (int i = 0; i < NODES_NUMBER-1; ++i)
+        {
+            threads.push_back(std::thread(connection_thread, input, address.at(i), SERVER_PORT, i+1));
+        }
+
+        for (auto& th : threads) th.join();
+
+        printf("Client: mission completed!\n");
     }
-
-    getAdress("Address.add");
-
-    std::vector <std::thread> threads;
-
-    printf("Retriving information from remote machines... \n");
-
-    for (int i = 0; i < NODES_NUMBER-1; ++i)
-    {
-        threads.push_back(std::thread(connection_thread, input, address.at(i), SERVER_PORT, i+1));
-    }
-
-    for (auto& th : threads) th.join();
-
-    printf("Client: mission completed!\n");
 
     return;
 }
@@ -342,7 +353,6 @@ int main (int argc, char* argv[])
     std::thread listeningServer(listeningThread, SERVER_PORT);
     usleep(500);
 
-    std::cout << "Type 'grep' if you want to see logs: ";
     std::thread cinListening( listeningCin );
 
     cinListening.join();

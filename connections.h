@@ -8,10 +8,8 @@
 /* Server operation */
 int open_socket(int port)
 {
-    socklen_t len; //store size of the address
     struct sockaddr_in svrAdd, clntAdd;
     int listenFd;
-    int connFd;
     
     //create socket
     listenFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -41,12 +39,21 @@ int open_socket(int port)
         std::cout << "open_socket: Cannot bind" << std::endl;
         exit(1);
     }
+    printf("Listening at port %d...\n", port);
+
+    return listenFd;
+}
+
+int listen_socket(int listenFd)
+{
+
+    socklen_t len; //store size of the address
+    int connFd;
+    struct sockaddr_in svrAdd, clntAdd;
 
     listen(listenFd, 5);
     
     len = sizeof(clntAdd);
-    
-    printf("Listening at port %d...\n", port);
 
     //this is where client connects. svr will hang in this mode until client conn
     connFd = accept(listenFd, (struct sockaddr *)&clntAdd, &len);

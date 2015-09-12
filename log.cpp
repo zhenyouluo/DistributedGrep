@@ -153,11 +153,13 @@ int splitRead( int connFd, char * data, int size ){
 void listeningThread(int serverPort)
 {   
     //set connection
+    int listenFd = open_socket(serverPort);
     while(true)
     {
 
         int ret;
-        int connFd = open_socket(serverPort);
+        
+        int connFd = listen_socket(listenFd);
 
         //recv command from client
         char* buffer = new char[BUFFER_MAX];

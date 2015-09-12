@@ -15,9 +15,13 @@ int open_socket(int port)
     
     //create socket
     listenFd = socket(AF_INET, SOCK_STREAM, 0);
-    int iSetOption = 1;
-    setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
-        sizeof(iSetOption));
+    int yes = 1;
+
+    if (setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) 
+    {
+        printf("setsockopt\n");
+        exit(1);
+    }
     
     if(listenFd < 0)
     {
@@ -38,15 +42,10 @@ int open_socket(int port)
         exit(1);
     }
 
-    
     listen(listenFd, 5);
     
     len = sizeof(clntAdd);
     
-    int noThread = 0;
-
-    //std::cout << "Listening in background... " << std::endl;
-
     printf("Listening at port %d...\n", port);
 
     //this is where client connects. svr will hang in this mode until client conn

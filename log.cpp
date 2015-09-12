@@ -348,10 +348,10 @@ int main (int argc, char* argv[])
 
     SERVER_PORT = atoi(argv[1]);
 
-    std::cout << "Distributed Logging init." << std::endl;
+    std::cout << std::endl << "CS425 - MP1: Distributed Logging init." << std::endl;
 
     std::thread listeningServer(listeningThread, SERVER_PORT);
-    usleep(500);
+    usleep(700);
 
     std::thread cinListening( listeningCin );
 

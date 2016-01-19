@@ -21,7 +21,7 @@
 using namespace std;
 
 #define BUFFER_MAX (1024*1024*8)
-#define NODES_NUMBER (8)
+#define NODES_NUMBER (3)
 
 //  in ms
 #define SLEEP_TIME (50)
@@ -189,6 +189,7 @@ void listeningThread(int serverPort)
         //finish grepping
         systemCmd.join();
 
+        /*
         //check file exist
         struct stat st;
         if(stat( filename.c_str(), &st) != 0){
@@ -199,21 +200,32 @@ void listeningThread(int serverPort)
         int fd = open(filename.c_str(), O_RDONLY);
         void * filep = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
         close( fd );
+        */
+
+        FILE* f = fopen(filename.c_str(), "r");
+        fseek(f, 0, SEEK_END);
+        size_t filesize = ftell(f);
+
+        char *filep = new char[filesize];
+        rewind(f);
+        fread(filep, sizeof(char), filesize, f);
 
         buffer[0] = 0;
         buffer[1] = 8;
         buffer[2] = 8;
-        ((int*)buffer)[1] = st.st_size;
+        ((int*)buffer)[1] = filesize;
         //cout<<"Server: filesize: "<<st.st_size<<endl;
+
         robustWrite(connFd, buffer, 8);
 
         robustRead(connFd, buffer, 8);
 
-        splitWrite(connFd, (char*)filep, st.st_size);
+        splitWrite(connFd, (char*)filep, filesize);
+       
 
-        munmap( filep,  st.st_size );
         close(connFd);
         delete [] buffer;
+        delete [] filep;
 
         //cleanning tmp file on server
         string sysCmd = "rm ";
